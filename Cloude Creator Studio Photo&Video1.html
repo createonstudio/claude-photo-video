@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Creator Studio — Kompletny Przewodnik & Baza Komend AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #08090d;
+      --glass-surface: rgba(18, 19, 28, 0.65);
+      --glass-surface-hover: rgba(28, 30, 44, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.09);
+      --glass-border-hover: rgba(217, 119, 87, 0.45);
+      --glass-highlight: rgba(255, 255, 255, 0.12);
+      
+      --accent-coral: #d97757;
+      --accent-coral-glow: rgba(217, 119, 87, 0.25);
+      --accent-indigo: #8b5cf6;
+      --accent-platinum: #f1f5f9;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Płynny Canvas WebGL (Jedwab w tle) */
+    #canvas-cloth {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .viewport-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, transparent 20%, rgba(8, 9, 13, 0.85) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .page-wrapper {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ==========================================================================
+       SEKCJA OKŁADKI
+       ========================================================================== */
+    .cover-hero-section {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px 60px;
+    }
+
+    .book-cover {
+      width: 100%;
+      max-width: 660px;
+      border-radius: 28px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 
+        0 40px 90px -20px rgba(0, 0, 0, 0.95),
+        0 0 0 1px rgba(255, 255, 255, 0.22);
+      color: #1a1715;
+      display: flex;
+      flex-direction: column;
+      padding: 46px 36px 38px;
+    }
+
+    .cover-bg-photo {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(15, 17, 26, 0.45) 55%, rgba(8, 9, 13, 0.92) 100%),
+        url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1400&q=95');
+      background-size: cover;
+      background-position: center 20%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .cover-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      height: 100%;
+    }
+
+    .cover-brand-top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .cover-logo-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.85rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: baseline;
+    }
+
+    .cover-logo-text span.italic-part {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      margin-left: 4px;
+      color: var(--accent-coral);
+    }
+
+    .cover-logo-sub {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.42em;
+      text-transform: uppercase;
+      color: #cbd5e1;
+      font-weight: 700;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+    }
+
+    .cover-headline {
+      margin: 8px 0 14px;
+      line-height: 0.95;
+    }
+
+    .cover-number {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(4.2rem, 13vw, 5.8rem);
+      font-weight: 700;
+      color: #ffffff;
+      display: inline-block;
+      letter-spacing: -0.02em;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.85);
+    }
+
+    .cover-title-serif {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(2rem, 5.8vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      text-transform: uppercase;
+      display: block;
+      line-height: 1.05;
+      margin-top: 2px;
+      text-shadow: 0 3px 14px rgba(0, 0, 0, 0.9);
+    }
+
+    .cover-terracotta-ribbon {
+      background: var(--accent-coral);
+      color: #FAF7F2;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.84rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      padding: 10px 24px;
+      border-radius: 6px;
+      margin: 12px 0 8px;
+      box-shadow: 0 10px 25px rgba(217, 119, 87, 0.45);
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .cover-sub-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #f1f5f9;
+      margin-bottom: 24px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+    }
+
+    .cover-pills-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .cover-pill-card {
+      background: rgba(18, 20, 30, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 20px;
+      padding: 13px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-align: left;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .cover-pill-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+    }
+
+    .pill-icon-box {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: rgba(217, 119, 87, 0.18);
+      border: 1px solid rgba(217, 119, 87, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--accent-coral);
+    }
+
+    .pill-text-content h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #ffffff;
+      margin-bottom: 2px;
+    }
+
+    .pill-text-content p {
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      line-height: 1.35;
+      font-weight: 400;
+    }
+
+    .cover-cta-button {
+      background: var(--accent-coral);
+      color: #FAF7F2;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      max-width: 440px;
+      padding: 16px 24px;
+      border-radius: 100px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      box-shadow: 0 10px 25px rgba(217, 119, 87, 0.45);
+      transition: all 0.3s ease;
+    }
+
+    .cover-cta-button:hover {
+      background: #e28566;
+      transform: translateY(-3px);
+      box-shadow: 0 14px 34px rgba(217, 119, 87, 0.65);
+      color: #ffffff;
+    }
+
+    .cover-bottom-caption {
+      margin-top: 14px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #f1f5f9;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    }
+
+    /* ==========================================================================
+       DASHBOARD APLIKACJI
+       ========================================================================== */
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 40px 24px 100px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .dashboard-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(217, 119, 87, 0.12);
+      border: 1px solid rgba(217, 119, 87, 0.3);
+      backdrop-filter: blur(12px);
+      color: var(--accent-coral);
+      padding: 7px 22px;
+      border-radius: 100px;
+      font-size: 0.74rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 18px;
+    }
+
+    h2.dashboard-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 4.5vw, 3.4rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      background: linear-gradient(180deg, #FFFFFF 0%, #94A3B8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 14px;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      max-width: 820px;
+      margin: 0 auto 35px;
+      line-height: 1.6;
+    }
+
+    /* Wyszukiwarka */
+    .search-box {
+      max-width: 580px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(18, 20, 30, 0.6);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(28px);
+      border-radius: 16px;
+      padding: 16px 20px 16px 48px;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.35s ease;
+      box-shadow: inset 0 1px 0 var(--glass-highlight), 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-coral);
+      background: rgba(25, 28, 42, 0.8);
+      box-shadow: inset 0 1px 0 var(--glass-highlight), 0 0 30px var(--accent-coral-glow);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    /* Nawigacja Kategorii */
+    .category-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin: 40px 0 50px;
+    }
+
+    .cat-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(18, 20, 30, 0.5);
+      border: 1px solid var(--glass-border);
+      color: var(--text-secondary);
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      backdrop-filter: blur(16px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .cat-btn:hover, .cat-btn.active {
+      background: rgba(36, 40, 60, 0.8);
+      border-color: var(--accent-coral);
+      color: var(--text-primary);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 18px rgba(0,0,0,0.5);
+      transform: translateY(-2px);
+    }
+
+    /* Bento Grid */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 24px;
+    }
+
+    .bento-card {
+      background: var(--glass-surface);
+      backdrop-filter: blur(30px) saturate(140%);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 
+        inset 0 1px 1px var(--glass-highlight),
+        inset 0 -1px 1px rgba(0,0,0,0.3),
+        0 20px 40px -15px rgba(0, 0, 0, 0.7);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-style: preserve-3d;
+    }
+
+    .bento-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(217, 119, 87, 0.6) 50%, transparent 100%);
+      opacity: 0.6;
+      transition: opacity 0.35s ease;
+    }
+
+    .bento-card:hover {
+      background: var(--glass-surface-hover);
+      border-color: var(--glass-border-hover);
+      box-shadow: 
+        inset 0 1px 2px rgba(255, 255, 255, 0.25),
+        0 25px 50px -12px rgba(0, 0, 0, 0.85),
+        0 0 25px var(--accent-coral-glow);
+    }
+
+    .bento-card:hover::before { opacity: 1; }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .command-tag {
+      font-family: 'Space Grotesk', monospace;
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--accent-coral);
+      letter-spacing: 0.02em;
+      background: rgba(217, 119, 87, 0.14);
+      border: 1px solid rgba(217, 119, 87, 0.32);
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+
+    .card-cat-name {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .card-body {
+      margin-bottom: 20px;
+      flex-grow: 1;
+    }
+
+    .card-desc {
+      color: var(--text-primary);
+      font-size: 0.96rem;
+      line-height: 1.5;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+
+    .card-usecase {
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-usecase span {
+      color: #cbd5e1;
+      font-weight: 500;
+    }
+
+    .prompt-preview {
+      background: rgba(10, 11, 16, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-family: 'Space Grotesk', monospace;
+      font-size: 0.82rem;
+      color: var(--accent-platinum);
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .copy-btn {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-primary);
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.25s ease;
+      margin-top: 14px;
+    }
+
+    .copy-btn:hover {
+      background: var(--accent-coral);
+      color: #ffffff;
+      border-color: var(--accent-coral);
+      box-shadow: 0 4px 14px rgba(217, 119, 87, 0.45);
+    }
+
+    /* ==========================================================================
+       MODUŁ PRZEWODNIKA (MASTERCLASS BLUEPRINT)
+       ========================================================================== */
+    .masterclass-wrapper {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      margin-bottom: 20px;
+    }
+
+    .guide-box {
+      background: var(--glass-surface);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 34px 38px;
+      backdrop-filter: blur(28px);
+      box-shadow: inset 0 1px 0 var(--glass-highlight), 0 20px 45px rgba(0,0,0,0.6);
+    }
+
+    .guide-box h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .guide-box h3 span.badge-num {
+      background: rgba(217, 119, 87, 0.18);
+      border: 1px solid rgba(217, 119, 87, 0.35);
+      color: var(--accent-coral);
+      font-size: 0.85rem;
+      padding: 4px 12px;
+      border-radius: 8px;
+    }
+
+    .guide-box p.intro-lead {
+      color: var(--text-secondary);
+      font-size: 0.98rem;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    .steps-timeline {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-top: 10px;
+    }
+
+    .step-item {
+      background: rgba(10, 12, 18, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 16px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .step-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent-coral);
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .step-header h4 {
+      font-size: 1.05rem;
+      color: #fff;
+    }
+
+    .step-item p {
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+
+    .code-snippet {
+      background: #050608;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .code-snippet code {
+      font-family: 'Space Grotesk', monospace;
+      font-size: 0.8rem;
+      color: var(--accent-coral);
+      word-break: break-all;
+    }
+
+    .btn-quick-copy {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .btn-quick-copy:hover {
+      background: var(--accent-coral);
+      border-color: var(--accent-coral);
+    }
+
+    .callout-card {
+      background: rgba(217, 119, 87, 0.08);
+      border-left: 4px solid var(--accent-coral);
+      padding: 16px 20px;
+      border-radius: 0 12px 12px 0;
+      margin-top: 24px;
+    }
+
+    .callout-card h5 {
+      color: #fff;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .callout-card p {
+      color: #cbd5e1;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 80px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: rgba(18, 20, 30, 0.96);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--accent-coral);
+      color: #FAF7F2;
+      padding: 14px 24px;
+      border-radius: 100px;
+      font-size: 0.88rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(12px);
+      transition: all 0.3s ease;
+      z-index: 100;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.7);
+    }
+
+    #toast.show { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+  <canvas id="canvas-cloth"></canvas>
+  <div class="viewport-overlay"></div>
+
+  <div class="page-wrapper">
+    
+    <!-- OKŁADKA -->
+    <section class="cover-hero-section">
+      <div class="book-cover">
+        <div class="cover-bg-photo"></div>
+
+        <div class="cover-inner">
+         <div class="cover-brand-top">
+            <a href="#" class="cover-logo" style="text-decoration:none;" aria-label="CreateON Studio">
+              <div class="cover-logo-text">create<span class="italic-part">on</span></div>
+              <div class="cover-logo-sub">STUDIO</div>
+            </a>
+          </div>
+
+          <div class="cover-headline">
+            <div>
+              <span class="cover-number">130+</span>
+            </div>
+            <h1 class="cover-title-serif">MODELI MULTIMEDIALNYCH & MONTAŻ WIDEO</h1>
+          </div>
+
+          <div class="cover-terracotta-ribbon">
+            CLAUDE DESKTOP • PICSART CLI • REMOTION STUDIO
+          </div>
+          <div class="cover-sub-label">
+            PRZEWODNIK KROK PO KROKU • FORMULARZE • SKRÓTY
+          </div>
+
+          <div class="cover-pills-list">
+            
+            <div class="cover-pill-card">
+              <div class="pill-icon-box">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="5"/></svg>
+              </div>
+              <div class="pill-text-content">
+                <h4>130+ MODELI BEZ SUBSKRYPCJI</h4>
+                <p>Flux 2 Pro, Recraft V4, Kling, Veo, Sora i ElevenLabs w jednym oknie</p>
+              </div>
+            </div>
+
+            <div class="cover-pill-card">
+              <div class="pill-icon-box">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+              </div>
+              <div class="pill-text-content">
+                <h4>MONTAŻ WIDEO W KODZIE</h4>
+                <p>Remotion: animacje tekstu, napisy pod rolki i rendering do MP4</p>
+              </div>
+            </div>
+
+            <div class="cover-pill-card">
+              <div class="pill-icon-box">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              </div>
+              <div class="pill-text-content">
+                <h4>PRZEWODNIK KROK PO KROKU</h4>
+                <p>Od instalacji i logowania po pierwszy eksport gotowego materiału</p>
+              </div>
+            </div>
+
+          </div>
+
+          <a href="#app-content" class="cover-cta-button">
+            OTWÓRZ CENTRUM DOWODZENIA →
+          </a>
+          <div class="cover-bottom-caption">
+            SZYBKI SETUP • JĘZYK NATURALNY • PEŁNA KONTROLA
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DASHBOARD -->
+    <div class="container" id="app-content">
+      <header>
+        <div class="dashboard-badge">Master Blueprint · 2026 Edition</div>
+        <h2 class="dashboard-title">CLAUDE CREATOR STUDIO</h2>
+        <p class="subtitle">Zintegrowane środowisko produkcyjne: generuj fotorealistyczne grafiki, wideo AI i podkłady lektorskie, a następnie montuj je w kodzie za pomocą języka naturalnego.</p>
+
+        <div class="search-box">
+          <svg class="search-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="Szukaj procedury, modelu AI, komendy instalacji lub promptu...">
+        </div>
+      </header>
+
+      <!-- Nawigacja Modułowa -->
+      <nav class="category-nav" id="categoryNav">
+        <button class="cat-btn active" data-cat="guide">📖 Przewodnik Krok po Kroku</button>
+        <button class="cat-btn" data-cat="all">Wszystkie Prompty & Kody</button>
+        <button class="cat-btn" data-cat="models">🧠 Modele AI & Koszty</button>
+        <button class="cat-btn" data-cat="cli">⚙️ Komendy CLI & Narzędzia</button>
+        <button class="cat-btn" data-cat="img-prompts">🖼️ Prompty: Obrazy</button>
+        <button class="cat-btn" data-cat="vid-prompts">🎥 Prompty: Wideo AI</button>
+        <button class="cat-btn" data-cat="remotion">✂️ Remotion: Montaż w Kodzie</button>
+        <button class="cat-btn" data-cat="audio">🎙️ Voiceover & Audio</button>
+        <button class="cat-btn" data-cat="troubleshoot">🔧 Rozwiązywanie Problemów</button>
+      </nav>
+
+      <main class="bento-grid" id="promptsGrid"></main>
+
+      <footer>
+        <p>© 2026 Claude Creator Studio Edition. Architektura oparta na Claude Desktop, Picsart CLI & Remotion Framework.</p>
+        <p style="margin-top: 6px; font-size: 0.75rem;">
+          Wymaga aplikacji Claude Desktop (zakładka Code). Wygenerowane multimedia zapisywane są bezpośrednio na dysku lokalnym.
+        </p>
+      </footer>
+    </div>
+  </div>
+
+  <div id="toast">
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+    <span>Skopiowano do schowka!</span>
+  </div>
+
+  <script>
+    // BAZA KOMEND I PROMPTÓW
+    const studioData = [
+      // MODELE AI
+      { 
+        id: "MOD-01", 
+        catId: "models", 
+        catName: "Modele AI", 
+        code: "Flux 2 Pro", 
+        desc: "Najwyższy poziom fotorealizmu, odwzorowania tekstur skóry i oświetlenia produktowego", 
+        use: "Fotografia produktowa, luksusowe portrety, scenerie", 
+        cost: "2-4 kredyty / obraz",
+        prompt: "Generate a photorealistic product photo of a luxury perfume bottle on wet dark slate stone, macro condensation, soft cinematic lighting using Flux 2 Pro" 
+      },
+      { 
+        id: "MOD-02", 
+        catId: "models", 
+        catName: "Modele AI", 
+        code: "Recraft V4", 
+        desc: "Perfekcyjna grafika wektorowa, precyzyjne logo, ikony oraz czysty design 2D", 
+        use: "Grafika wektorowa, branding, logotypy, ikony", 
+        cost: "2-4 kredyty / wektor",
+        prompt: "Create a modern minimalist geometric logo for an AI creative studio, clean vector line art on solid dark background using Recraft V4" 
+      },
+      { 
+        id: "MOD-03", 
+        catId: "models", 
+        catName: "Modele AI", 
+        code: "Nano Banana", 
+        desc: "Błyskawiczne szkice koncepcyjne, szybkie prototypowanie i najtańsza opcja robocza", 
+        use: "Storyboardy, szybkie testy kompozycji, szkice", 
+        cost: "1-2 kredyty / obraz",
+        prompt: "Quick concept sketch of an ergonomic electric bike in futuristic city street using Nano Banana" 
+      },
+      { 
+        id: "MOD-04", 
+        catId: "models", 
+        catName: "Modele AI", 
+        code: "Kling", 
+        desc: "Krótkometrażowe, niezwykle spójne klipy wideo, prezentacje produktów i ruch postaci", 
+        use: "Rolki na Instagram, dema produktów, TikTok", 
+        cost: "20-40 kredytów / klip",
+        prompt: "Create a 5-second video of luxury sunglasses rotating smoothly in soft ambient studio lighting using Kling" 
+      },
+      { 
+        id: "MOD-05", 
+        catId: "models", 
+        catName: "Modele AI", 
+        code: "Google Veo", 
+        desc: "Kinowa jakość wideo, realistyczna dynamika kamery i płynne odwzorowanie fizyki", 
+        use: "Spoty reklamowe, B-roll w jakości kinowej", 
+        cost: "25-45 kredytów / klip",
+        prompt: "Cinematic drone shot flying through misty mountain valley at golden hour sunset with realistic fog using Google Veo" 
+      },
+      { 
+        id: "MOD-06", 
+        catId: "models", 
+        catName: "Modele AI", 
+        code: "Sora", 
+        desc: "Złożone sceny narracyjne, wieloobiektowe ujęcia fabularne i kreatywne światy", 
+        use: "Storytelling, teledyski, zaawansowane kreacje wizualne", 
+        cost: "30-50 kredytów / klip",
+        prompt: "Photorealistic cinematic sequence of an astronaut walking through a neon-lit cyberpunk market in rain using Sora" 
+      },
+      { 
+        id: "MOD-07", 
+        catId: "models", 
+        catName: "Modele AI", 
+        code: "ElevenLabs", 
+        desc: "Ultra-realistyczna synteza głosu lektorskiego, klonowanie intonacji i podcasty", 
+        use: "Voiceover do rolek, narracja reklam, audiobooki", 
+        cost: "3-10 kredytów / audio",
+        prompt: "Generate a professional confident female voiceover: 'Witamy w nowej erze tworzenia wideo z Claude.' Warm and engaging tone using ElevenLabs" 
+      },
+
+      // KOMENDY CLI
+      { 
+        id: "CLI-01", 
+        catId: "cli", 
+        catName: "Komendy CLI", 
+        code: "Install CLI", 
+        desc: "Podstawowa instalacja biblioteki Picsart w zakładce Code w Claude Desktop", 
+        use: "Konfiguracja jednorazowa", 
+        prompt: "npm install -g @picsart/gen-ai" 
+      },
+      { 
+        id: "CLI-02", 
+        catId: "cli", 
+        catName: "Komendy CLI", 
+        code: "gen-ai login", 
+        desc: "Uruchamia przeglądarkę w celu autoryzacji tokena konta Picsart", 
+        use: "Logowanie i powiązanie kredytów", 
+        prompt: "Run: gen-ai login" 
+      },
+      { 
+        id: "CLI-03", 
+        catId: "cli", 
+        catName: "Komendy CLI", 
+        code: "gen-ai credits", 
+        desc: "Sprawdza aktualny stan dostępnych kredytów na Twoim koncie", 
+        use: "Kontrola budżetu", 
+        prompt: "Run: gen-ai credits" 
+      },
+      { 
+        id: "CLI-04", 
+        catId: "cli", 
+        catName: "Komendy CLI", 
+        code: "gen-ai pricing", 
+        desc: "Wyświetla cennik kredytowy dla poszczególnych modeli generatywnych", 
+        use: "Weryfikacja kosztów przed generowaniem", 
+        prompt: "Run: gen-ai pricing" 
+      },
+      { 
+        id: "CLI-05", 
+        catId: "cli", 
+        catName: "Komendy CLI", 
+        code: "gen-ai whoami", 
+        desc: "Pokazuje adres e-mail zalogowanego użytkownika i status sesji", 
+        use: "Diagnostyka połączenia", 
+        prompt: "Run: gen-ai whoami" 
+      },
+      { 
+        id: "CLI-06", 
+        catId: "cli", 
+        catName: "Komendy CLI", 
+        code: "Background Removal", 
+        desc: "Błyskawiczne usunięcie tła z wygenerowanego lub załączonego zdjęcia", 
+        use: "Przygotowanie PNG na stronę lub do packshotu", 
+        prompt: "Remove the background from the last generated image and save as clean PNG" 
+      },
+      { 
+        id: "CLI-07", 
+        catId: "cli", 
+        catName: "Komendy CLI", 
+        code: "4x Upscaling", 
+        desc: "Zwiększenie rozdzielczości obrazu do formatu 4K (4096x4096px) bez utraty ostrości", 
+        use: "Druk, materiały wielkoformatowe", 
+        prompt: "Upscale the generated product image 4x to high-resolution 4096x4096px" 
+      },
+      { 
+        id: "CLI-08", 
+        catId: "cli", 
+        catName: "Komendy CLI", 
+        code: "Object Erasure", 
+        desc: "Usunięcie niechcianego obiektu lub zakłócenia ze wskazanego kadru", 
+        use: "Retusz i czyszczenie kompozycji", 
+        prompt: "Erase the unwanted shadows and cords on the desk from the generated image" 
+      },
+
+      // PROMPTY OBRAZY
+      { 
+        id: "IMG-01", 
+        catId: "img-prompts", 
+        catName: "Prompty Obrazy", 
+        code: "Product Hero Shot", 
+        desc: "Czysty, studyjny kadr produktowy z naturalnym oświetleniem i wysokim kontrastem", 
+        use: "Sklepy internetowe, strony główne, e-commerce", 
+        prompt: "Generate a professional product photo of a ceramic coffee mug on a white marble countertop with soft morning window light. Clean background, 8k resolution, photorealistic" 
+      },
+      { 
+        id: "IMG-02", 
+        catId: "img-prompts", 
+        catName: "Prompty Obrazy", 
+        code: "Social Media Banner", 
+        desc: "Grafika promocyjna pod social media z wyrazistym gradientem i typografią", 
+        use: "Instagram post, drop kolekcji", 
+        prompt: "Create an Instagram post graphic with bold modern typography 'NEW DROP' on an obsidian glassmorphism gradient background with subtle neon amber glow" 
+      },
+      { 
+        id: "IMG-03", 
+        catId: "img-prompts", 
+        catName: "Prompty Obrazy", 
+        code: "Atmospheric Landscape", 
+        desc: "Fotorealistyczny krajobraz z miękkim światłem poranka do tła lub kampanii", 
+        use: "Tła, strony www, travel marketing", 
+        prompt: "Generate a photorealistic image of a misty mountain lake at sunrise with pine trees reflected in the still water. Golden hour lighting, shot on 35mm lens" 
+      },
+      { 
+        id: "IMG-04", 
+        catId: "img-prompts", 
+        catName: "Prompty Obrazy", 
+        code: "Iteracja / Retusz", 
+        desc: "Instrukcja modyfikacji istniejącego już wygenerowanego obrazu w Claude", 
+        use: "Dopracowywanie detali", 
+        prompt: "Same image, but make the lighting warmer, change the background to an architectural concrete wall, and format as vertical 9:16" 
+      },
+
+      // PROMPTY WIDEO
+      { 
+        id: "VID-01", 
+        catId: "vid-prompts", 
+        catName: "Prompty Wideo", 
+        code: "360 Product Demo", 
+        desc: "Płynna prezentacja produktu obracającego się w przestrzeni studyjnej", 
+        use: "Reklamy produktowe, wideo do sklepu", 
+        prompt: "Create a 5-second video of an athletic sneaker slowly rotating on a clean seamless background with soft studio rim lighting" 
+      },
+      { 
+        id: "VID-02", 
+        catId: "vid-prompts", 
+        catName: "Prompty Wideo", 
+        code: "Cinematic B-Roll", 
+        desc: "Zmysłowe, kinowe ujęcie slow-motion do wplecenia w rolkę lub prezentację", 
+        use: "Rolki, tła, montaż klimatyczny", 
+        prompt: "Generate a 6-second cinematic slow motion video of espresso pouring into a transparent glass cup with delicate steam rising in warm cafe atmosphere" 
+      },
+      { 
+        id: "VID-03", 
+        catId: "vid-prompts", 
+        catName: "Prompty Wideo", 
+        code: "Nature Atmosphere", 
+        desc: "Organiczny ruch przyrody do filmów podróżniczych i relaksacyjnych", 
+        use: "Travel Reels, intros", 
+        prompt: "Generate a short video of gentle ocean waves washing over a black volcanic sand beach at twilight. Cinematic color grading, 4k" 
+      },
+
+      // REMOTION
+      { 
+        id: "REM-01", 
+        catId: "remotion", 
+        catName: "Remotion Montaż", 
+        code: "Inicjalizacja Projektu", 
+        desc: "Kreator projektu Remotion z obsługą Tailwind CSS i AI Skills dla Claude", 
+        use: "Setup projektu w terminalu/Code", 
+        prompt: "npx create-video@latest (Wybierz: Blank template -> TailwindCSS: Yes -> Install Skills: Yes)" 
+      },
+      { 
+        id: "REM-02", 
+        catId: "remotion", 
+        catName: "Remotion Montaż", 
+        code: "Uruchomienie Studio", 
+        desc: "Włączenie podglądu osi czasu w przeglądarce pod adresem localhost:3000", 
+        use: "Bieżąca edycja wideo", 
+        prompt: "cd my-video && npm install && npm run dev" 
+      },
+      { 
+        id: "REM-03", 
+        catId: "remotion", 
+        catName: "Remotion Montaż", 
+        code: "Animacja Typograficzna", 
+        desc: "Polecenie dla Claude: stworzenie 10-sekundowego intro z animacją tekstu", 
+        use: "Czołówka wideo / Intro", 
+        prompt: "Create a 10-second intro video with my brand name fading in with an obsidian background, then a tagline sliding in from the bottom with spring physics" 
+      },
+      { 
+        id: "REM-04", 
+        catId: "remotion", 
+        catName: "Remotion Montaż", 
+        code: "Automatyczne Napisy", 
+        desc: "Nałożenie dynamicznych napisów z podświetleniem każdego słowa na istniejący klip", 
+        use: "Rolki / TikTok z napisami", 
+        prompt: "Take the video at ./public/clip.mp4 and add animated synchronized subtitles with an amber yellow highlight on each active spoken word" 
+      },
+      { 
+        id: "REM-05", 
+        catId: "remotion", 
+        catName: "Remotion Montaż", 
+        code: "SaaS Motion Showcase", 
+        desc: "Animowany showcase aplikacji: zoom na zrzut ekranu, 3 ramki callout i CTA", 
+        use: "Wideo demonstracyjne oprogramowania", 
+        prompt: "Make a 15-second product showcase that zooms smoothly into a dashboard screenshot, highlights 3 features with pulsing callout boxes, and ends with a CTA" 
+      },
+      { 
+        id: "REM-06", 
+        catId: "remotion", 
+        catName: "Remotion Montaż", 
+        code: "Korekta w Języku Naturalnym", 
+        desc: "Modyfikacja klatki i parametrów wideo bez dotykania kodu źródłowego", 
+        use: "Rewizja montażu", 
+        prompt: "Make the headline text 20% larger, speed up the opening transition by 0.5 seconds, and add a smooth bounce effect when the logo appears" 
+      },
+      { 
+        id: "REM-07", 
+        catId: "remotion", 
+        catName: "Remotion Montaż", 
+        code: "Renderowanie do MP4", 
+        desc: "Wyrenderowanie gotowego projektu Remotion do pliku wideo MP4", 
+        use: "Finalny eksport", 
+        prompt: "npx remotion render (lub napisz do Claude: 'render the video to out.mp4')" 
+      },
+
+      // AUDIO & TROUBLESHOOTING
+      { 
+        id: "AUD-01", 
+        catId: "audio", 
+        catName: "Audio & Głos", 
+        code: "Brand Voiceover", 
+        desc: "Generowanie profesjonalnego głosu lektorskiego do kampanii", 
+        use: "Podkład pod rolki / wideo", 
+        prompt: "Generate a professional warm male voiceover saying: 'Twórz bez ograniczeń. Połącz moc kodu i sztucznej inteligencji.' Confident inspiring tone" 
+      },
+      { 
+        id: "TRB-01", 
+        catId: "troubleshoot", 
+        catName: "Rozwiązywanie Problemów", 
+        code: "Błąd: Brak uprawnień", 
+        desc: "Gdy Claude odpowiada, że nie może wygenerować obrazu lub wystąpił błąd autoryzacji", 
+        use: "Naprawa połączenia CLI", 
+        prompt: "Wpisz w zakładce Code: Run: gen-ai login i potwierdź logowanie w oknie przeglądarki. Token zostanie automatycznie zapisany na Twoim komputerze." 
+      },
+      { 
+        id: "TRB-02", 
+        catId: "troubleshoot", 
+        catName: "Rozwiązywanie Problemów", 
+        code: "Brak Kredytów", 
+        desc: "Komunikat 'Out of credits' przy generowaniu wideo lub obrazów wysokiej rozdzielczości", 
+        use: "Kredyty Picsart", 
+        prompt: "Wpisz Run: gen-ai credits. Jeśli saldo wynosi 0, doładuj pakiet kredytów bezpośrednio na picsart.com (brak przymusowej subskrypcji miesięcznej)." 
+      },
+      { 
+        id: "TRB-03", 
+        catId: "troubleshoot", 
+        catName: "Rozwiązywanie Problemów", 
+        code: "Własne Pliki w Remotion", 
+        desc: "Jak użyć własnych nagrań z telefonu lub renderów z Claude w montażu Remotion", 
+        use: "Zarządzanie mediami", 
+        prompt: "Przeciągnij swoje pliki wideo, audio lub zdjęcia do folderu ./public/ wewnątrz projektu. Następnie w promptach odwołuj się do nich: ./public/mojplik.mp4" 
+      }
+    ];
+
+    // =========================================================================
+    // MODUŁ PRZEWODNIKA BLUEPRINT KROK PO KROKU
+    // =========================================================================
+    function getGuideHtml() {
+      return `
+        <div class="masterclass-wrapper">
+          
+          <!-- SEKCJA 1: JAK TO DZIAŁA -->
+          <div class="guide-box">
+            <h3><span class="badge-num">Krok 0</span> Zrozumienie Ekosystemu: Jak to działa?</h3>
+            <p class="intro-lead">
+              Sam model Claude (od Anthropic) to potężny model językowo-programistyczny. Nie generuje samodzielnie pikseli, ale posiada <strong>zakładkę Code (Claude Code)</strong>, która działa jak wbudowany terminal z dostępem do Twojego systemu. Dzięki temu staje się <strong>dyrektorem kreatywnym</strong>, który wydaje polecenia dwóm wyspecjalizowanym narzędziom:
+            </p>
+            <div class="steps-timeline">
+              <div class="step-item">
+                <div class="step-header">
+                  <div class="step-circle">1</div>
+                  <h4>Picsart CLI (Fabryka AI)</h4>
+                </div>
+                <p>Most łączący Claude z ponad 130 modelami generatywnymi na świecie (Flux, Recraft, Kling, Veo, Sora, ElevenLabs). Claude sam decyduje, do którego silnika wysłać prompt, a wygenerowany plik pojawia się w czacie.</p>
+              </div>
+              <div class="step-item">
+                <div class="step-header">
+                  <div class="step-circle">2</div>
+                  <h4>Remotion (Montaż w Kodzie)</h4>
+                </div>
+                <p>Framework oparty o React. Pozwala Claude budować wideo klatka po klatce. Zamiast ciąć w Premiere Pro, piszesz po polsku lub angielsku, co ma się dziać, a Remotion renderuje to do krystalicznego pliku .mp4.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- SEKCJA 2: INSTRUKCJA PICSART -->
+          <div class="guide-box">
+            <h3><span class="badge-num">Część 1</span> Generowanie Obrazów, Wideo i Dźwięku (Picsart CLI)</h3>
+            <p class="intro-lead">
+              Wykonaj te 4 kroki jeden raz. Po autoryzacji Claude pamięta Twoje połączenie na stałe:
+            </p>
+            <div class="steps-timeline">
+              
+              <div class="step-item">
+                <div class="step-header">
+                  <div class="step-circle">1</div>
+                  <h4>Pobierz Claude Desktop</h4>
+                </div>
+                <p>Zainstaluj oficjalną aplikację z <code>claude.ai/download</code>. Zaloguj się. Wersja w przeglądarce nie posiada zakładki Code – aplikacja desktopowa jest wymagana.</p>
+              </div>
+
+              <div class="step-item">
+                <div class="step-header">
+                  <div class="step-circle">2</div>
+                  <h4>Zainstaluj Picsart CLI</h4>
+                </div>
+                <p>Kliknij u góry zakładkę <strong>Code</strong> i wklej polecenie instalacji:</p>
+                <div class="code-snippet">
+                  <code>npm install -g @picsart/gen-ai</code>
+                  <button class="btn-quick-copy" onclick="copyPrompt('npm install -g @picsart/gen-ai')">Kopiuj</button>
+                </div>
+              </div>
+
+              <div class="step-item">
+                <div class="step-header">
+                  <div class="step-circle">3</div>
+                  <h4>Zaloguj się i połącz token</h4>
+                </div>
+                <p>Zarejestruj darmowe konto na <code>picsart.com</code> (otrzymasz darmowe kredyty startowe). W Claude Code wpisz:</p>
+                <div class="code-snippet">
+                  <code>Run: gen-ai login</code>
+                  <button class="btn-quick-copy" onclick="copyPrompt('Run: gen-ai login')">Kopiuj</button>
+                </div>
+                <p style="margin-top:8px; font-size:0.78rem;">Otworzy się przeglądarka – kliknij <em>Authorize / Allow</em>.</p>
+              </div>
+
+              <div class="step-item">
+                <div class="step-header">
+                  <div class="step-circle">4</div>
+                  <h4>Zacznij generować!</h4>
+                </div>
+                <p>Pisz w języku naturalnym, np.: <em>"Generate a photorealistic product photo of modern headphones on marble using Flux 2 Pro"</em>. Claude wygeneruje plik i wyświetli go w oknie.</p>
+              </div>
+
+            </div>
+
+            <div class="callout-card">
+              <h5>💡 Złota zasada oszczędzania kredytów</h5>
+              <p>Zawsze przed generowaniem możesz zapytać Claude: <code>Run: gen-ai credits</code> aby sprawdzić saldo. Do testów kompozycji proś o model <em>Nano Banana</em> (1-2 kredyty), a do finalnych ujęć wybieraj <em>Flux 2 Pro</em> lub <em>Recraft V4</em>.</p>
+            </div>
+          </div>
+
+          <!-- SEKCJA 3: INSTRUKCJA REMOTION -->
+          <div class="guide-box">
+            <h3><span class="badge-num">Część 2</span> Programistyczny Montaż Wideo (Remotion Studio)</h3>
+            <p class="intro-lead">
+              Jak stworzyć własne studio montażu wideo sterowane promptami bez dotykania osi czasu:
+            </p>
+            <div class="steps-timeline">
+              
+              <div class="step-item">
+                <div class="step-header">
+                  <div class="step-circle">1</div>
+                  <h4>Instalacja Node.js</h4>
+                </div>
+                <p>Jeśli nie masz Node.js na komputerze, po prostu napisz w Claude Code:</p>
+                <div class="code-snippet">
+                  <code>Install Node.js on my computer</code>
+                  <button class="btn-quick-copy" onclick="copyPrompt('Install Node.js on my computer')">Kopiuj</button>
+                </div>
+              </div>
+
+              <div class="step-item">
+                <div class="step-header">
+                  <div class="step-circle">2</div>
+                  <h4>Inicjalizacja Projektu</h4>
+                </div>
+                <p>Wklej komendę tworzącą czyste środowisko wideo:</p>
+                <div class="code-snippet">
+                  <code>npx create-video@latest</code>
+                  <button class="btn-quick-copy" onclick="copyPrompt('npx create-video@latest')">Kopiuj</button>
+                </div>
+                <p style="margin-top:8px; font-size:0.78rem;">Wybierz: Blank template → TailwindCSS: Yes → Install Skills: <strong>Yes</strong> (uczy Claude reguł montażu).</p>
+              </div>
+
+              <div class="step-item">
+                <div class="step-header">
+                  <div class="step-circle">3</div>
+                  <h4>Uruchom Edytor na Żywo</h4>
+                </div>
+                <p>Wejdź do folderu i włącz studio w przeglądarce:</p>
+                <div class="code-snippet">
+                  <code>cd my-video && npm install && npm run dev</code>
+                  <button class="btn-quick-copy" onclick="copyPrompt('cd my-video && npm install && npm run dev')">Kopiuj</button>
+                </div>
+                <p style="margin-top:8px; font-size:0.78rem;">Otworzy się okno podglądu klatek Remotion Studio.</p>
+              </div>
+
+              <div class="step-item">
+                <div class="step-header">
+                  <div class="step-circle">4</div>
+                  <h4>Promptuj i Eksportuj</h4>
+                </div>
+                <p>W nowej zakładce Claude Code pisz polecenia, np.: <em>"Dodaj animowane napisy do klipu ./public/video.mp4 z żółtym podświetleniem"</em>. Gdy efekt Ci się podoba, wpisz:</p>
+                <div class="code-snippet">
+                  <code>npx remotion render</code>
+                  <button class="btn-quick-copy" onclick="copyPrompt('npx remotion render')">Kopiuj</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      `;
+    }
+
+    // RENDEROWANIE WIDOKÓW
+    const grid = document.getElementById('promptsGrid');
+    const searchInput = document.getElementById('searchInput');
+    const catButtons = document.querySelectorAll('.cat-btn');
+
+    let currentCat = 'guide'; // Startujemy od przewodnika
+
+    function renderView(filterText = '') {
+      grid.innerHTML = '';
+      const query = filterText.toLowerCase().trim();
+
+      // Jeśli wybrano przewodnik i nie ma wyszukiwania
+      if (currentCat === 'guide' && !query) {
+        grid.innerHTML = getGuideHtml();
+        return;
+      }
+
+      // Filtrowanie kart promptów
+      const filtered = studioData.filter(item => {
+        const matchesCat = (currentCat === 'all' || currentCat === 'guide' || item.catId === currentCat);
+        const matchesSearch = item.code.toLowerCase().includes(query) ||
+                              item.desc.toLowerCase().includes(query) ||
+                              item.use.toLowerCase().includes(query) ||
+                              item.prompt.toLowerCase().includes(query) ||
+                              item.catName.toLowerCase().includes(query);
+        return matchesCat && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 70px 0; color: var(--text-muted); font-size: 1rem;">Nie znaleziono pasujących komend ani procedur.</div>`;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'bento-card';
+        card.setAttribute('data-tilt', '');
+
+        const costBadge = item.cost ? `<span style="font-size: 0.72rem; color: var(--accent-coral); background: rgba(217, 119, 87, 0.12); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(217,119,87,0.25);">${item.cost}</span>` : '';
+
+        card.innerHTML = `
+          <div class="card-meta">
+            <span class="command-tag">${item.code}</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              ${costBadge}
+              <span class="card-cat-name">${item.catName}</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <h3 class="card-desc">${item.desc}</h3>
+            <p class="card-usecase">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+              Zastosowanie: <span>${item.use}</span>
+            </p>
+            <div class="prompt-preview">${item.prompt}</div>
+          </div>
+          <button class="copy-btn" onclick="copyPrompt('${item.prompt.replace(/'/g, "\\'")}')">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Kopiuj Formułę / Komendę
+          </button>
+        `;
+        grid.appendChild(card);
+      });
+
+      initTiltEffect();
+    }
+
+    function copyPrompt(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2200);
+      });
+    }
+
+    catButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        catButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCat = btn.dataset.cat;
+        renderView(searchInput.value);
+      });
+    });
+
+    searchInput.addEventListener('input', (e) => {
+      renderView(e.target.value);
+    });
+
+    function initTiltEffect() {
+      document.querySelectorAll('[data-tilt]').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left - rect.width / 2;
+          const y = e.clientY - rect.top - rect.height / 2;
+          const rotateX = (-y / rect.height) * 9;
+          const rotateY = (x / rect.width) * 9;
+          card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-3px)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0)';
+        });
+      });
+    }
+
+    // =========================================================================
+    // WEBGL SILK INTERACTIVE CLOTH SHADER
+    // =========================================================================
+    const canvas = document.getElementById('canvas-cloth');
+    const gl = canvas.getContext('webgl');
+
+    let mouseX = 0.5, mouseY = 0.5, targetMouseX = 0.5, targetMouseY = 0.5;
+
+    window.addEventListener('pointermove', (e) => {
+      targetMouseX = e.clientX / window.innerWidth;
+      targetMouseY = 1.0 - (e.clientY / window.innerHeight);
+    });
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    const vsSource = `
+      attribute vec2 position;
+      void main() {
+        gl_Position = vec4(position, 0.0, 1.0);
+      }
+    `;
+
+    const fsSource = `
+      precision highp float;
+      uniform vec2 u_resolution;
+      uniform float u_time;
+      uniform vec2 u_mouse;
+
+      float silkDrape(vec2 p) {
+        float t = u_time * 0.12;
+        float sway1 = sin(p.y * 1.4 + t * 0.6) * 0.45;
+        float sway2 = cos(p.y * 2.2 - t * 0.4) * 0.25;
+        float foldX = p.x + sway1 + sway2;
+
+        float f1 = sin(foldX * 3.4 + cos(p.y * 1.8 + t * 0.5));
+        float f2 = cos(foldX * 5.6 - sin(p.y * 2.8 - t * 0.3) * 0.7);
+        float f3 = sin((p.x * 2.0 + p.y * 3.0) + t * 0.3);
+
+        float folds = (f1 * 0.55 + f2 * 0.30 + f3 * 0.15);
+        return smoothstep(-0.85, 0.85, folds);
+      }
+
+      void main() {
+        vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+        uv.x *= u_resolution.x / u_resolution.y;
+
+        vec2 m = u_mouse * vec2(u_resolution.x / u_resolution.y, 1.0);
+        float distToMouse = distance(uv, m);
+
+        float breezeRadius = 0.38;
+        float breezeLift = exp(-pow(distToMouse / breezeRadius, 2.0));
+        float gentleFlutter = sin(u_time * 1.8 - distToMouse * 3.0) * 0.08 * breezeLift;
+        float totalLift = breezeLift + gentleFlutter;
+
+        vec2 windDirection = normalize(uv - m + vec2(0.001, -0.04));
+        vec2 displacedUV = uv + windDirection * totalLift * 0.035;
+
+        float drape = silkDrape(displacedUV * 1.5);
+        float height = drape + totalLift * 0.35;
+
+        vec2 e = vec2(0.006, 0.0);
+        float hR = silkDrape((displacedUV + e.xy) * 1.5) + exp(-pow(distance(uv + e.xy, m) / breezeRadius, 2.0)) * 0.35;
+        float hU = silkDrape((displacedUV + e.yx) * 1.5) + exp(-pow(distance(uv + e.yx, m) / breezeRadius, 2.0)) * 0.35;
+
+        vec3 normal = normalize(vec3(
+          (height - hR) / e.x,
+          (height - hU) / e.x,
+          0.35
+        ));
+
+        vec3 light1 = normalize(vec3(0.3, 0.6, 0.75));
+        float diff = max(dot(normal, light1), 0.0) * 0.75 + 0.25;
+
+        vec3 viewDir = vec3(0.0, 0.0, 1.0);
+        float rimLight = pow(1.0 - max(dot(normal, viewDir), 0.0), 3.0) * 0.6;
+
+        vec3 cDeepShadow = vec3(0.03, 0.035, 0.05);
+        vec3 cMutedIndigo = vec3(0.12, 0.13, 0.22);
+        vec3 cWarmCoral  = vec3(0.42, 0.23, 0.18);
+        vec3 cPlatSilk   = vec3(0.70, 0.74, 0.82);
+        vec3 cGlowPuff   = vec3(0.85, 0.46, 0.34);
+
+        vec3 color = mix(cDeepShadow, cMutedIndigo, smoothstep(0.0, 0.4, height));
+        color = mix(color, cWarmCoral, smoothstep(0.4, 0.75, height) * diff);
+        color = mix(color, cPlatSilk, smoothstep(0.75, 1.1, height));
+        color += cPlatSilk * rimLight * 0.4;
+        color += cGlowPuff * totalLift * 0.20;
+
+        gl_FragColor = vec4(color, 1.0);
+      }
+    `;
+
+    function compileShader(type, source) {
+      const shader = gl.createShader(type);
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        console.error(gl.getShaderInfoLog(shader));
+        gl.deleteShader(shader);
+        return null;
+      }
+      return shader;
+    }
+
+    const program = gl.createProgram();
+    gl.attachShader(program, compileShader(gl.VERTEX_SHADER, vsSource));
+    gl.attachShader(program, compileShader(gl.FRAGMENT_SHADER, fsSource));
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      -1, -1,  1, -1, -1,  1,
+      -1,  1,  1, -1,  1,  1,
+    ]), gl.STATIC_DRAW);
+
+    const posAttr = gl.getAttribLocation(program, 'position');
+    gl.enableVertexAttribArray(posAttr);
+    gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+
+    const uRes = gl.getUniformLocation(program, 'u_resolution');
+    const uTime = gl.getUniformLocation(program, 'u_time');
+    const uMouse = gl.getUniformLocation(program, 'u_mouse');
+
+    let startTime = performance.now();
+
+    function renderLoop() {
+      mouseX += (targetMouseX - mouseX) * 0.04;
+      mouseY += (targetMouseY - mouseY) * 0.04;
+
+      const currentTime = (performance.now() - startTime) * 0.001;
+
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.uniform1f(uTime, currentTime);
+      gl.uniform2f(uMouse, mouseX, mouseY);
+
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      requestAnimationFrame(renderLoop);
+    }
+    renderLoop();
+
+    // Start od widoku przewodnika
+    renderView();
+  </script>
+</body>
+</html>
